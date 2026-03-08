@@ -87,6 +87,14 @@ No external dependencies. Uses only React `useState` and inline styles.
 ## Files
 
 ```
-NLFRC_Video_Guide.jsx   — the interactive React app
+index.html              — entry HTML page
+vite.config.js          — Vite config (base path for GitHub Pages)
+package.json            — scripts: dev, build, deploy
+src/
+  main.jsx              — React entry point
+  App.jsx               — the full interactive guide (all session data + UI)
+  index.css             — global reset styles
+public/
+  vite.svg              — favicon
 README.md               — this file
 ```
