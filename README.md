@@ -16,18 +16,26 @@ One hand-picked video per session. Built for teams who want to self-study withou
 
 ---
 
-## How to Run
+## Live Site
 
-This is a React component. Drop it into any React project or paste it into [StackBlitz](https://stackblitz.com) / [CodeSandbox](https://codesandbox.io).
+🔗 **https://Abulmeg.github.io/nlfrc-video-guide/**
+
+## How to Run Locally
 
 ```bash
-# If using a local React project
-cp NLFRC_Video_Guide.jsx src/App.jsx
+git clone https://github.com/Abulmeg/nlfrc-video-guide.git
+cd nlfrc-video-guide
 npm install
-npm start
+npm run dev
 ```
 
-No external dependencies. Uses only React `useState` and inline styles.
+To deploy changes to GitHub Pages:
+
+```bash
+npm run deploy
+```
+
+Built with Vite + React. Uses only `useState` and inline styles — no external UI dependencies.
 
 ---
 
@@ -74,12 +82,18 @@ No external dependencies. Uses only React `useState` and inline styles.
 
 ---
 
+## Link Types
+
+- **✓ DIRECT LINK** → opens the exact video immediately
+- **Channel links** → go to the channel, use the search bar to find the right video using the note text
+- **Tutorial page links** → page has embedded video + wiring + code together
+- **⚠️ SAFETY** → mandatory for every team member before March 19
+
 ## Notes for Your Team
 
 - Watch the video **before** the session, not after
 - The **⚠️ SAFETY** video (Mar 19) is mandatory for everyone before touching a LiPo battery
 - For `FULL COURSE` sessions, you don't watch the whole thing — read the note in the app for the exact chapters
-- Channel links: go to the channel and search the term in the session note to find the right video
 - Sessions Mar 29, Mar 31, Apr 02 all use **Electronoobs** — subscribe once, covers three sessions
 
 ---
