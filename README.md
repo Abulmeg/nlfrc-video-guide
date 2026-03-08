@@ -1,16 +1,92 @@
-# React + Vite
+# NLFRC 2026 — One Video Per Session Guide
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A clean, interactive study guide for the NLFRC robotics course (Mar 03 – Apr 03, 2026).  
+One hand-picked video per session. Built for teams who want to self-study without wasting time.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## What's Inside
 
-## React Compiler
+- **19 sessions** covered, one video each
+- Every session from the official NLFRC schedule is matched
+- Filter by category: Theory / Hands-On / Full Course / Safety / Competition
+- Click any row → opens directly on YouTube or the resource page
+- `✓ DIRECT LINK` badge = confirmed video ID, goes straight to the video
+- Channel links include a search tip so you find the right video instantly
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## How to Run
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+This is a React component. Drop it into any React project or paste it into [StackBlitz](https://stackblitz.com) / [CodeSandbox](https://codesandbox.io).
+
+```bash
+# If using a local React project
+cp NLFRC_Video_Guide.jsx src/App.jsx
+npm install
+npm start
+```
+
+No external dependencies. Uses only React `useState` and inline styles.
+
+---
+
+## Sessions Covered
+
+| Date | Topic | Tag |
+|------|-------|-----|
+| Mar 03 | Basic Electronics & Components | THEORY |
+| Mar 05 | Circuit Design & Safety Protocols | THEORY |
+| Mar 06 | Intro to Microcontrollers (Arduino/ESP) | HANDS-ON |
+| Mar 08 | Programming Fundamentals (C++) — Part 1 | FULL COURSE |
+| Mar 10 | Programming Fundamentals (C++) — Part 2 | FULL COURSE |
+| Mar 12 | Control Structures & Logic | THEORY |
+| Mar 13 | Introduction to Sensors (IR/Reflectance) | HANDS-ON |
+| Mar 15 | Motor Control Theory & PWM | THEORY |
+| Mar 17 | H-Bridges & Motor Drivers | HANDS-ON |
+| Mar 19 | Power Management & Batteries (LiPo Safety) | ⚠️ SAFETY |
+| Mar 20 | PCB Design Fundamentals | HANDS-ON |
+| Mar 22 | PCB Design — Practical Workshop | HANDS-ON |
+| Mar 24 | Mechanical Design Principles & CAD | HANDS-ON |
+| Mar 26 | Introduction to Control Systems | THEORY |
+| Mar 27 | PID Control Algorithm — Theory | THEORY |
+| Mar 29 | PID Control Algorithm — Implementation | HANDS-ON |
+| Mar 31 | Sensor Arrays & Advanced Signal Processing | HANDS-ON |
+| Apr 02 | Advanced Line Following Algorithms | COMPETITION |
+| Apr 03 | Competition Strategy & Phase 1 Review | COMPETITION |
+
+---
+
+## Key Channels
+
+| Channel | Best For |
+|---------|----------|
+| GreatScott! | Electronics basics, PWM, Arduino circuits |
+| freeCodeCamp | C++ full course |
+| The Cherno | C++ control flow & OOP |
+| How To Mechatronics | Sensors, motors, L298N wiring |
+| MATLAB Official | PID theory (7-min animated video) |
+| Electronoobs | Line follower PID, QTR sensors, competition tuning |
+| Phil's Lab | PCB design & KiCad |
+| Brian Douglas | Control systems theory |
+| Product Design Online | Fusion 360 / CAD |
+| RCModelReviews | LiPo battery safety |
+
+---
+
+## Notes for Your Team
+
+- Watch the video **before** the session, not after
+- The **⚠️ SAFETY** video (Mar 19) is mandatory for everyone before touching a LiPo battery
+- For `FULL COURSE` sessions, you don't watch the whole thing — read the note in the app for the exact chapters
+- Channel links: go to the channel and search the term in the session note to find the right video
+- Sessions Mar 29, Mar 31, Apr 02 all use **Electronoobs** — subscribe once, covers three sessions
+
+---
+
+## Files
+
+```
+NLFRC_Video_Guide.jsx   — the interactive React app
+README.md               — this file
+```
