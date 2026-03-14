@@ -4,8 +4,64 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: #0B0F1A;
+  font-family: 'JetBrains Mono', 'DM Mono', 'Fira Mono', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── CUSTOM SCROLLBAR ─────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #1A2840;
+  border-radius: 99px;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+  color: #E8F0FF;
+}
+
+/* ── ANIMATIONS ───────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes completedPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.3); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+button:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+}
+
+a:focus-visible {
+  outline: 2px solid #3B82F6;
+  outline-offset: 2px;
+  border-radius: 4px;
 }

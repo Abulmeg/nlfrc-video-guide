@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // ─── VERIFIED VIDEO IDs ───────────────────────────────────────────────────────
 // 7w5I-KbJ1Sg  GreatScott resistor basics       (confirmed via his own description)
@@ -385,51 +385,86 @@ const SLIDES = {
 // ─── SLIDE PANEL ─────────────────────────────────────────────────────────────
 function SlidePanel({ topic, color, onClose }) {
   const [idx, setIdx] = useState(0);
+  const [slideAnim, setSlideAnim] = useState("in");
   const slides = SLIDES[topic];
+
+  const goTo = useCallback((newIdx) => {
+    setSlideAnim("out");
+    setTimeout(() => { setIdx(newIdx); setSlideAnim("in"); }, 150);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight" && idx < slides.length - 1) goTo(idx + 1);
+      if (e.key === "ArrowLeft" && idx > 0) goTo(idx - 1);
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [idx, slides, onClose, goTo]);
+
   if (!slides) return null;
   const slide = slides[idx];
   const total = slides.length;
+  const words = slide.body.split(/\s+/).length;
+  const readTime = Math.max(1, Math.ceil(words / 200));
 
   return (
-    <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,0.88)", display:"flex", alignItems:"center", justifyContent:"center", padding:16 }} onClick={onClose}>
-      <div onClick={e => e.stopPropagation()} style={{ background:"#0D1625", border:`1px solid ${color}33`, borderRadius:12, width:"100%", maxWidth:580, maxHeight:"92vh", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:"0 32px 80px rgba(0,0,0,0.9)" }}>
+    <div style={{ position:"fixed", inset:0, zIndex:200, background:"rgba(0,0,0,0.88)", display:"flex", alignItems:"center", justifyContent:"center", padding:16, animation:"fadeIn 0.2s ease" }} onClick={onClose}>
+      <div onClick={e => e.stopPropagation()} style={{ background:"#0D1625", border:`1px solid ${color}33`, borderRadius:14, width:"100%", maxWidth:600, maxHeight:"92vh", overflow:"hidden", display:"flex", flexDirection:"column", boxShadow:`0 32px 80px rgba(0,0,0,0.9), 0 0 60px ${color}08`, animation:"scaleIn 0.25s cubic-bezier(0.4,0,0.2,1)" }}>
 
         {/* Header */}
-        <div style={{ padding:"14px 18px 10px", borderBottom:"1px solid #1A2840", display:"flex", justifyContent:"space-between", alignItems:"center", flexShrink:0 }}>
+        <div style={{ padding:"16px 20px 12px", borderBottom:"1px solid #1A2840", display:"flex", justifyContent:"space-between", alignItems:"center", flexShrink:0 }}>
           <div>
-            <div style={{ color:"#3A5070", fontSize:9, letterSpacing:2, fontFamily:"inherit" }}>STUDY GUIDE · SLIDE {idx+1}/{total}</div>
-            <div style={{ color:"#E0EAF8", fontSize:14, fontWeight:700, marginTop:2 }}>{slide.heading}</div>
+            <div style={{ color:"#3A5070", fontSize:10, letterSpacing:2, fontFamily:"inherit" }}>STUDY GUIDE · SLIDE {idx+1}/{total} · {readTime} min read</div>
+            <div style={{ color:"#E0EAF8", fontSize:16, fontWeight:700, marginTop:4, fontFamily:"inherit" }}>{slide.heading}</div>
           </div>
-          <button onClick={onClose} style={{ background:"none", border:"1px solid #1A2840", color:"#3A5070", borderRadius:4, padding:"3px 9px", cursor:"pointer", fontSize:11, fontFamily:"inherit" }}>✕</button>
+          <button onClick={onClose} style={{ background:"none", border:"1px solid #1A2840", color:"#3A5070", borderRadius:6, padding:"5px 11px", cursor:"pointer", fontSize:12, fontFamily:"inherit", transition:"all 0.15s" }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor=color+"55";e.currentTarget.style.color=color;}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="#1A2840";e.currentTarget.style.color="#3A5070";}}
+          >✕</button>
         </div>
 
         {/* Progress */}
-        <div style={{ height:2, background:"#0F1A2E", flexShrink:0 }}>
-          <div style={{ height:"100%", background:color, width:`${((idx+1)/total)*100}%`, transition:"width 0.3s ease" }}/>
+        <div style={{ height:3, background:"#0F1A2E", flexShrink:0 }}>
+          <div style={{ height:"100%", background:`linear-gradient(90deg, ${color}, ${color}CC)`, width:`${((idx+1)/total)*100}%`, transition:"width 0.4s cubic-bezier(0.4,0,0.2,1)", borderRadius:"0 2px 2px 0", boxShadow:`0 0 8px ${color}40` }}/>
         </div>
 
         {/* Content */}
-        <div style={{ flex:1, overflowY:"auto", padding:"16px 20px" }}>
-          {slide.visual && <div style={{ marginBottom:12 }}>{slide.visual}</div>}
-          <pre style={{ color:"#8AADCC", fontSize:12.5, lineHeight:1.9, margin:0, fontFamily:"'DM Mono','Fira Mono',monospace", whiteSpace:"pre-wrap", wordBreak:"break-word" }}>
+        <div style={{ flex:1, overflowY:"auto", padding:"20px 24px", opacity: slideAnim==="in"?1:0, transform: slideAnim==="in"?"translateX(0)":"translateX(12px)", transition:"opacity 0.15s, transform 0.15s" }}>
+          {slide.visual && <div style={{ marginBottom:16 }}>{slide.visual}</div>}
+          <pre style={{ color:"#8AADCC", fontSize:13, lineHeight:2, margin:0, fontFamily:"inherit", whiteSpace:"pre-wrap", wordBreak:"break-word" }}>
             {slide.body}
           </pre>
         </div>
 
-        {/* Dot nav */}
-        <div style={{ padding:"10px 18px 12px", borderTop:"1px solid #1A2840", display:"flex", gap:8, alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-          <button onClick={() => setIdx(i => Math.max(0,i-1))} disabled={idx===0} style={{ background:"none", border:`1px solid ${idx===0?"#0F1A2E":color+"55"}`, color:idx===0?"#1E2C44":color, borderRadius:4, padding:"7px 16px", cursor:idx===0?"not-allowed":"pointer", fontSize:11, fontFamily:"inherit", fontWeight:700 }}>← PREV</button>
-          <div style={{ display:"flex", gap:5 }}>
+        {/* Navigation */}
+        <div style={{ padding:"12px 20px 14px", borderTop:"1px solid #1A2840", display:"flex", gap:10, alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+          <button onClick={() => goTo(Math.max(0,idx-1))} disabled={idx===0} style={{ background:"none", border:`1px solid ${idx===0?"#0F1A2E":color+"44"}`, color:idx===0?"#1E2C44":color, borderRadius:6, padding:"8px 18px", cursor:idx===0?"not-allowed":"pointer", fontSize:12, fontFamily:"inherit", fontWeight:600, transition:"all 0.15s" }}>← Prev</button>
+          <div style={{ display:"flex", gap:6, alignItems:"center" }}>
             {slides.map((_,i) => (
-              <button key={i} onClick={() => setIdx(i)} style={{ width:7, height:7, borderRadius:"50%", background:i===idx?color:"#1A2840", border:"none", cursor:"pointer", padding:0, transition:"background 0.2s" }}/>
+              <button key={i} onClick={() => goTo(i)} style={{ width:i===idx?20:8, height:8, borderRadius:99, background:i===idx?color:"#1A2840", border:"none", cursor:"pointer", padding:0, transition:"all 0.3s cubic-bezier(0.4,0,0.2,1)" }}/>
             ))}
           </div>
-          <button onClick={() => setIdx(i => Math.min(total-1,i+1))} disabled={idx===total-1} style={{ background:idx===total-1?"none":color, border:`1px solid ${idx===total-1?"#0F1A2E":color}`, color:idx===total-1?"#1E2C44":"#0B0F1A", borderRadius:4, padding:"7px 16px", cursor:idx===total-1?"not-allowed":"pointer", fontSize:11, fontFamily:"inherit", fontWeight:700 }}>NEXT →</button>
+          <button onClick={() => goTo(Math.min(total-1,idx+1))} disabled={idx===total-1} style={{ background:idx===total-1?"none":color, border:`1px solid ${idx===total-1?"#0F1A2E":color}`, color:idx===total-1?"#1E2C44":"#0B0F1A", borderRadius:6, padding:"8px 18px", cursor:idx===total-1?"not-allowed":"pointer", fontSize:12, fontFamily:"inherit", fontWeight:600, transition:"all 0.15s" }}>Next →</button>
+        </div>
+
+        {/* Keyboard hint */}
+        <div style={{ padding:"0 20px 10px", textAlign:"center", flexShrink:0 }}>
+          <span style={{ color:"#1A2840", fontSize:9, fontFamily:"inherit", letterSpacing:1 }}>← → navigate · ESC close</span>
         </div>
       </div>
     </div>
   );
 }
+
+// ─── PROGRESS HELPERS ─────────────────────────────────────────────────────────
+const STORAGE_KEY = "nlfrc-progress";
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { return {}; }
+}
+function saveProgress(p) { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+function getStepKey(modId, stepNum) { return `${modId}-${stepNum}`; }
 
 // ─── MAIN APP ─────────────────────────────────────────────────────────────────
 export default function App() {
@@ -437,97 +472,174 @@ export default function App() {
   const [activeTopic, setActiveTopic] = useState(null);
   const [activeColor, setActiveColor] = useState("#3B82F6");
   const [hovered, setHovered] = useState(null);
+  const [progress, setProgress] = useState(loadProgress);
   const active = activeModule !== null ? modules[activeModule] : null;
 
   function openGuide(topic, color) { setActiveTopic(topic); setActiveColor(color); }
 
+  function toggleStep(modId, stepNum) {
+    const key = getStepKey(modId, stepNum);
+    const next = { ...progress, [key]: !progress[key] };
+    setProgress(next);
+    saveProgress(next);
+  }
+
+  const totalSteps = modules.reduce((s, m) => s + m.steps.length, 0);
+  const doneSteps = modules.reduce((s, m) => s + m.steps.filter(st => progress[getStepKey(m.id, st.step)]).length, 0);
+  const overallPct = totalSteps > 0 ? Math.round((doneSteps / totalSteps) * 100) : 0;
+
+  function getModuleDone(mod) {
+    return mod.steps.filter(st => progress[getStepKey(mod.id, st.step)]).length;
+  }
+
   return (
-    <div style={{ minHeight:"100vh", background:"#080C14", fontFamily:"'DM Mono','Fira Mono',monospace", color:"#C8D4E8" }}>
+    <div style={{ minHeight:"100vh", background:"#080C14", fontFamily:"inherit", color:"#C8D4E8" }}>
 
       {activeTopic && <SlidePanel topic={activeTopic} color={activeColor} onClose={() => setActiveTopic(null)}/>}
 
       {/* Topbar */}
       <div style={{ borderBottom:"1px solid #0D1828", padding:"16px 22px 12px", background:"#080C14", position:"sticky", top:0, zIndex:10, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          {active && <button onClick={() => setActiveModule(null)} style={{ background:"none", border:"1px solid #1A2840", color:"#3A5070", borderRadius:4, padding:"3px 9px", fontSize:10, cursor:"pointer", fontFamily:"inherit" }}>← BACK</button>}
-          <span style={{ color:"#F59E0B", fontWeight:700, fontSize:12, letterSpacing:2 }}>NLFRC 2026</span>
-          {active && <span style={{ color:"#1A2840", fontSize:11 }}>/ {active.title}</span>}
+          {active && <button onClick={() => setActiveModule(null)} style={{ background:"none", border:"1px solid #1A2840", color:"#3A5070", borderRadius:6, padding:"4px 12px", fontSize:11, cursor:"pointer", fontFamily:"inherit", fontWeight:500, transition:"all 0.15s" }}
+            onMouseEnter={e=>{e.currentTarget.style.borderColor="#3B82F644";e.currentTarget.style.color="#60A5FA";}}
+            onMouseLeave={e=>{e.currentTarget.style.borderColor="#1A2840";e.currentTarget.style.color="#3A5070";}}
+          >← Back</button>}
+          <span style={{ color:"#F59E0B", fontWeight:800, fontSize:13, letterSpacing:2, fontFamily:"inherit" }}>NLFRC 2026</span>
+          {active && <span style={{ color:"#1A2840", fontSize:12, fontFamily:"inherit" }}>/ {active.title}</span>}
         </div>
-        <span style={{ color:"#1A2840", fontSize:9, letterSpacing:1 }}>6 MODULES · 19 SESSIONS</span>
+        <div style={{ display:"flex", alignItems:"center", gap:12 }}>
+          {overallPct > 0 && <span style={{ color:"#3A5070", fontSize:10, fontFamily:"inherit", letterSpacing:1 }}>{doneSteps}/{totalSteps}</span>}
+          <span style={{ color:"#1A2840", fontSize:10, letterSpacing:1, fontFamily:"inherit" }}>6 MODULES · 19 SESSIONS</span>
+        </div>
+      </div>
+      {/* Overall progress bar */}
+      <div style={{ height:2, background:"#0F1A2E" }}>
+        <div style={{ height:"100%", background:"linear-gradient(90deg, #F59E0B, #3B82F6, #10B981)", width:`${overallPct}%`, transition:"width 0.5s cubic-bezier(0.4,0,0.2,1)", borderRadius:"0 1px 1px 0" }}/>
       </div>
 
       {/* Module grid */}
       {!active && (
-        <div style={{ maxWidth:800, margin:"0 auto", padding:"30px 18px" }}>
-          <div style={{ marginBottom:28 }}>
-            <h1 style={{ fontSize:"clamp(20px,4vw,32px)", fontWeight:700, color:"#E8F0FF", margin:"0 0 6px", letterSpacing:-1 }}>Start from zero.<br/>Build a competition robot.</h1>
-            <p style={{ color:"#1E2C44", fontSize:12, margin:0 }}>Each module = videos + illustrated step-by-step guides. Zero knowledge needed.</p>
-          </div>
-          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(220px,1fr))", gap:10 }}>
-            {modules.map((mod,i) => (
-              <button key={mod.id} onClick={() => setActiveModule(i)}
-                onMouseEnter={e=>{e.currentTarget.style.border=`1px solid ${mod.color}44`;e.currentTarget.style.background="#0F1628";}}
-                onMouseLeave={e=>{e.currentTarget.style.border="1px solid #111D30";e.currentTarget.style.background="#0C1220";}}
-                style={{ background:"#0C1220", border:"1px solid #111D30", borderRadius:8, padding:"18px 16px", cursor:"pointer", textAlign:"left", fontFamily:"inherit", position:"relative", overflow:"hidden", transition:"all 0.15s" }}>
-                <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:mod.color, opacity:0.8 }}/>
-                <div style={{ fontSize:24, marginBottom:8 }}>{mod.emoji}</div>
-                <div style={{ color:"#1E2C44", fontSize:9, letterSpacing:2, marginBottom:3 }}>MODULE {mod.id}</div>
-                <div style={{ color:"#C8D8F0", fontSize:13, fontWeight:700, marginBottom:4, lineHeight:1.3 }}>{mod.title}</div>
-                <div style={{ color:"#1E3050", fontSize:11, marginBottom:10, lineHeight:1.5 }}>{mod.tagline}</div>
-                <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginBottom:8 }}>
-                  {mod.sessions.map(s=><span key={s} style={{ background:"#0A1020", border:"1px solid #1A2840", borderRadius:3, padding:"2px 6px", fontSize:8, color:"#1E3050" }}>{s}</span>)}
+        <div style={{ maxWidth:880, margin:"0 auto", padding:"36px 20px 60px" }}>
+          {/* Hero + Stats side by side */}
+          <div style={{ display:"flex", gap:24, marginBottom:28, flexWrap:"wrap", alignItems:"flex-start" }}>
+            {/* Left: hero text */}
+            <div style={{ flex:"1 1 400px", minWidth:280 }}>
+              <h1 style={{ fontSize:"clamp(20px,4vw,30px)", fontWeight:700, color:"#E8F0FF", margin:"0 0 8px", letterSpacing:-1 }}>{'>'} Start from zero.<br/>{'>'} Build a competition robot.</h1>
+              <p style={{ color:"#2A3F5A", fontSize:12, margin:0, lineHeight:1.7 }}>Each module = videos + illustrated step-by-step guides.<br/>Zero prior knowledge needed.</p>
+            </div>
+            {/* Right: stats panel */}
+            <div style={{ flex:"0 0 auto", border:"1px dashed #1A2840", borderRadius:6, padding:"12px 16px", background:"#080C14", minWidth:180 }}>
+              <div style={{ color:"#1E3050", fontSize:9, letterSpacing:2, marginBottom:8, borderBottom:"1px solid #111D30", paddingBottom:6 }}>SYSTEM STATUS</div>
+              {[{n:"6", l:"modules", c:"#F59E0B"},{n:"19", l:"sessions", c:"#3B82F6"},{n:"18", l:"guides", c:"#10B981"},{n:`${overallPct}%`, l:"complete", c:"#8B5CF6"}].map(s=>(
+                <div key={s.l} style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"3px 0" }}>
+                  <span style={{ color:"#1E3050", fontSize:10 }}>{s.l}</span>
+                  <span style={{ color:s.c, fontSize:13, fontWeight:700 }}>{s.n}</span>
                 </div>
-                <div style={{ color:mod.color, fontSize:10, fontWeight:600 }}>{mod.steps.length} videos · {mod.steps.length} guides →</div>
-              </button>
-            ))}
+              ))}
+            </div>
           </div>
-          <div style={{ marginTop:20, padding:"11px 15px", border:"1px solid #0D1828", borderRadius:6, background:"#0A1018" }}>
-            <span style={{ color:"#1E3050", fontSize:11 }}>💡 Do modules in order. Each one builds on the last. Click <span style={{ color:"#3B82F6" }}>📖 Study Guide</span> inside each step to read the explanation — with diagrams — before watching the video.</span>
+
+          {/* Cards */}
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))", gap:12 }}>
+            {modules.map((mod,i) => {
+              const done = getModuleDone(mod);
+              const pct = Math.round((done / mod.steps.length) * 100);
+              const isComplete = pct === 100;
+              return (
+              <button key={mod.id} onClick={() => setActiveModule(i)}
+                onMouseEnter={e=>{e.currentTarget.style.border=`1px solid ${isComplete?"#10B981":mod.color}55`;e.currentTarget.style.transform="translateY(-2px)";}}
+                onMouseLeave={e=>{e.currentTarget.style.border=isComplete?"1px solid #10B98130":"1px solid #111D30";e.currentTarget.style.transform="translateY(0)";}}
+                style={{ background:isComplete?"#06120E":"#0C1220", border:isComplete?"1px solid #10B98130":"1px solid #111D30", borderRadius:6, padding:"16px 14px", cursor:"pointer", textAlign:"left", fontFamily:"inherit", position:"relative", overflow:"hidden", transition:"all 0.15s", animation:isComplete?"completedPulse 2s ease-in-out infinite":"none" }}>
+                {/* Top accent */}
+                <div style={{ position:"absolute", top:0, left:0, right:0, height:2, background:isComplete?"#10B981":mod.color, opacity:isComplete?1:0.7 }}/>
+                {/* Complete overlay scanline */}
+                {isComplete && <div style={{ position:"absolute", inset:0, background:"repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(16,185,129,0.02) 3px, rgba(16,185,129,0.02) 4px)", pointerEvents:"none" }}/>}
+                <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:8 }}>
+                  <div style={{ fontSize:24 }}>{mod.emoji}</div>
+                  {isComplete ? (
+                    <span style={{ background:"#10B98120", border:"1px solid #10B98150", borderRadius:4, padding:"2px 8px", fontSize:9, color:"#10B981", fontWeight:700, letterSpacing:1 }}>✓ COMPLETE</span>
+                  ) : done > 0 ? (
+                    <span style={{ background:mod.color+"10", border:`1px solid ${mod.color}25`, borderRadius:4, padding:"2px 8px", fontSize:9, color:"#3A5070", fontWeight:600 }}>{done}/{mod.steps.length}</span>
+                  ) : null}
+                </div>
+                <div style={{ color:isComplete?"#10B981":"#3A5070", fontSize:9, letterSpacing:2, marginBottom:3 }}>MODULE {mod.id}</div>
+                <div style={{ color:isComplete?"#A7F3D0":"#C8D8F0", fontSize:14, fontWeight:700, marginBottom:4, lineHeight:1.3 }}>{mod.title}</div>
+                <div style={{ color:isComplete?"#065F46":"#1E3050", fontSize:11, marginBottom:10, lineHeight:1.5 }}>{mod.tagline}</div>
+                <div style={{ display:"flex", gap:4, flexWrap:"wrap", marginBottom:8 }}>
+                  {mod.sessions.map(s=><span key={s} style={{ background:isComplete?"#06120E":"#0A1020", border:`1px solid ${isComplete?"#10B98120":"#1A2840"}`, borderRadius:3, padding:"2px 6px", fontSize:8, color:isComplete?"#10B98180":"#1E3050" }}>{s}</span>)}
+                </div>
+                {/* Mini progress bar */}
+                {done > 0 && !isComplete && <div style={{ height:2, background:"#111D30", borderRadius:99, marginBottom:8, overflow:"hidden" }}><div style={{ height:"100%", background:mod.color, width:`${pct}%`, borderRadius:99, transition:"width 0.4s" }}/></div>}
+                <div style={{ color:isComplete?"#10B981":mod.color, fontSize:10, fontWeight:600 }}>{isComplete ? "→ review all steps" : `${mod.steps.length} videos · ${mod.steps.length} guides →`}</div>
+              </button>
+              );
+            })}
+          </div>
+
+          {/* Tip */}
+          <div style={{ marginTop:18, padding:"10px 14px", border:"1px dashed #111D30", borderRadius:4, background:"#080C14" }}>
+            <span style={{ color:"#1E3050", fontSize:11, lineHeight:1.7 }}>{'>'} Do modules in order. Each one builds on the last.<br/>{'>'} Click <span style={{ color:"#3B82F6" }}>📖 Study Guide</span> inside each step to read the explanation before watching the video.</span>
           </div>
         </div>
       )}
 
       {/* Module detail */}
       {active && (
-        <div style={{ maxWidth:700, margin:"0 auto", padding:"24px 18px 60px" }}>
-          <div style={{ marginBottom:22, paddingBottom:16, borderBottom:`1px solid ${active.color}18` }}>
+        <div style={{ maxWidth:720, margin:"0 auto", padding:"28px 20px 80px", animation:"fadeIn 0.3s ease" }}>
+          <div style={{ marginBottom:24, paddingBottom:18, borderBottom:`1px solid ${active.color}18` }}>
             <div style={{ fontSize:30, marginBottom:7 }}>{active.emoji}</div>
-            <div style={{ color:"#1A2840", fontSize:9, letterSpacing:2, marginBottom:3 }}>MODULE {active.id} OF 6</div>
-            <h2 style={{ color:"#E0EAF8", fontSize:22, fontWeight:700, margin:"0 0 4px", letterSpacing:-0.5 }}>{active.title}</h2>
-            <p style={{ color:"#1E3050", fontSize:12, margin:"0 0 10px" }}>{active.tagline}</p>
-            <div style={{ display:"flex", gap:5, flexWrap:"wrap" }}>
-              {active.sessions.map(s=><span key={s} style={{ background:active.color+"10", border:`1px solid ${active.color}25`, borderRadius:3, padding:"2px 7px", fontSize:9, color:active.color }}>{s}</span>)}
+            <div style={{ color:"#3A5070", fontSize:10, letterSpacing:2, marginBottom:4, fontFamily:"inherit" }}>MODULE {active.id} OF 6 · {getModuleDone(active)}/{active.steps.length} COMPLETE</div>
+            <h2 style={{ color:"#E0EAF8", fontSize:26, fontWeight:800, margin:"0 0 6px", letterSpacing:-0.5, fontFamily:"inherit" }}>{active.title}</h2>
+            <p style={{ color:"#2A3F5A", fontSize:13, margin:"0 0 12px", fontFamily:"inherit" }}>{active.tagline}</p>
+            <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
+              {active.sessions.map(s=><span key={s} style={{ background:active.color+"10", border:`1px solid ${active.color}25`, borderRadius:4, padding:"3px 8px", fontSize:10, color:active.color, fontFamily:"inherit" }}>{s}</span>)}
             </div>
           </div>
 
           <div style={{ position:"relative" }}>
-            <div style={{ position:"absolute", left:16, top:32, bottom:32, width:1, background:"#0D1828" }}/>
+            <div style={{ position:"absolute", left:16, top:32, bottom:32, width:1, background:`linear-gradient(180deg, ${active.color}30, #0D1828, ${active.color}10)` }}/>
 
             {active.steps.map((step,i) => {
               const isOn = hovered === i;
+              const isDone = progress[getStepKey(active.id, step.step)];
               return (
                 <div key={i} style={{ display:"flex", gap:16, marginBottom:12 }}>
-                  <div style={{ flexShrink:0, width:32, height:32, borderRadius:"50%", background:step.warning?"#1A0E00":"#0C1220", border:`2px solid ${step.warning?"#F59E0B":active.color}`, display:"flex", alignItems:"center", justifyContent:"center", color:step.warning?"#F59E0B":active.color, fontSize:12, fontWeight:700, zIndex:1, position:"relative" }}>{step.step}</div>
+                  <div style={{ flexShrink:0, width:34, height:34, borderRadius:"50%", background:isDone?(step.warning?"#2A1A00":"#0A1A30"):step.warning?"#1A0E00":"#0C1220", border:`2px solid ${isDone?"#10B981":step.warning?"#F59E0B":active.color}`, display:"flex", alignItems:"center", justifyContent:"center", color:isDone?"#10B981":step.warning?"#F59E0B":active.color, fontSize:isDone?14:12, fontWeight:700, zIndex:1, position:"relative", transition:"all 0.3s", fontFamily:"inherit" }}>{isDone?"✓":step.step}</div>
                   <div style={{ flex:1 }} onMouseEnter={()=>setHovered(i)} onMouseLeave={()=>setHovered(null)}>
-                    <div style={{ background:step.warning?"#100B00":"#0C1220", border:`1px solid ${step.warning?"#F59E0B33":isOn?active.color+"44":"#111D30"}`, borderRadius:7, overflow:"hidden", transition:"border 0.12s" }}>
-                      <div style={{ padding:"12px 14px" }}>
-                        <div style={{ color:step.warning?"#F59E0B":"#1E3050", fontSize:9, letterSpacing:1.5, marginBottom:3, fontWeight:700 }}>STEP {step.step}{step.warning?" — MANDATORY":""}</div>
-                        <div style={{ color:step.warning?"#FCD34D":"#BDD0E8", fontSize:14, fontWeight:700, marginBottom:4, lineHeight:1.3 }}>{step.label}</div>
-                        <div style={{ color:"#1E3050", fontSize:11, lineHeight:1.7, marginBottom:10 }}>{step.why}</div>
-                        <div style={{ display:"flex", gap:7, flexWrap:"wrap" }}>
+                    <div style={{ background:step.warning?"#100B00":"#0C1220", border:`1px solid ${step.warning?"#F59E0B33":isOn?active.color+"44":"#111D30"}`, borderRadius:10, overflow:"hidden", transition:"all 0.2s" }}>
+                      <div style={{ padding:"14px 16px" }}>
+                        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
+                          <div style={{ color:step.warning?"#F59E0B":"#3A5070", fontSize:10, letterSpacing:1.5, fontWeight:700, fontFamily:"inherit" }}>STEP {step.step}{step.warning?" — MANDATORY":""}</div>
+                          <button onClick={(e) => { e.stopPropagation(); toggleStep(active.id, step.step); }}
+                            style={{ background:isDone?"#10B98120":"transparent", border:`1px solid ${isDone?"#10B98150":"#1A2840"}`, borderRadius:6, padding:"3px 10px", cursor:"pointer", fontSize:10, color:isDone?"#10B981":"#1E3050", fontFamily:"inherit", fontWeight:600, transition:"all 0.2s", letterSpacing:0.5 }}
+                            onMouseEnter={e=>{if(!isDone){e.currentTarget.style.borderColor="#10B98140";e.currentTarget.style.color="#10B981";}}}
+                            onMouseLeave={e=>{if(!isDone){e.currentTarget.style.borderColor="#1A2840";e.currentTarget.style.color="#1E3050";}}}
+                          >{isDone?"✓ Done":"Mark done"}</button>
+                        </div>
+                        <div style={{ color:step.warning?"#FCD34D":"#E0EAF8", fontSize:15, fontWeight:700, marginBottom:5, lineHeight:1.35, fontFamily:"inherit", textDecoration:isDone?"line-through":"none", opacity:isDone?0.6:1 }}>{step.label}</div>
+                        <div style={{ color:step.warning?"#8B6E20":"#2A3F5A", fontSize:12, lineHeight:1.7, marginBottom:10, fontFamily:"inherit" }}>{step.why}</div>
+                        {/* Video source */}
+                        <div style={{ color:"#1E3050", fontSize:10, marginBottom:8, fontFamily:"inherit", letterSpacing:0.5 }}>📹 {step.video}</div>
+                        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                           <a href={step.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration:"none" }}>
-                            <div style={{ display:"flex", alignItems:"center", gap:7, background:"#080C14", border:`1px solid ${step.warning?"#F59E0B33":active.color+"33"}`, borderRadius:5, padding:"7px 12px" }}>
-                              <span style={{ color:step.warning?"#F59E0B":active.color, fontSize:11, fontWeight:700 }}>▶ Watch</span>
+                            <div style={{ display:"flex", alignItems:"center", gap:8, background:"#080C14", border:`1px solid ${step.warning?"#F59E0B33":active.color+"33"}`, borderRadius:6, padding:"8px 14px", transition:"all 0.15s" }}
+                              onMouseEnter={e=>e.currentTarget.style.borderColor=step.warning?"#F59E0B66":active.color+"66"}
+                              onMouseLeave={e=>e.currentTarget.style.borderColor=step.warning?"#F59E0B33":active.color+"33"}
+                            >
+                              <span style={{ color:step.warning?"#F59E0B":active.color, fontSize:12, fontWeight:700, fontFamily:"inherit" }}>▶ Watch</span>
                               <span style={{ color:"#1A2840", fontSize:10 }}>·</span>
-                              <span style={{ color:"#1A2840", fontSize:10 }}>{step.duration}</span>
-                              {step.direct && <span style={{ background:"#0A150A", border:"1px solid #10B98130", borderRadius:2, padding:"1px 5px", fontSize:8, color:"#10B981", letterSpacing:1 }}>✓</span>}
+                              <span style={{ color:"#2A3F5A", fontSize:11, fontFamily:"inherit" }}>{step.duration}</span>
+                              {step.direct && <span style={{ background:"#0A150A", border:"1px solid #10B98130", borderRadius:3, padding:"2px 6px", fontSize:9, color:"#10B981", letterSpacing:1, fontFamily:"inherit" }}>✓ direct</span>}
                             </div>
                           </a>
                           {SLIDES[step.topic] && (
-                            <button onClick={() => openGuide(step.topic, active.color)} style={{ display:"flex", alignItems:"center", gap:6, background:"#080C14", border:"1px solid #1A3060", borderRadius:5, padding:"7px 12px", cursor:"pointer", fontFamily:"inherit" }}>
-                              <span style={{ fontSize:12 }}>📖</span>
-                              <span style={{ color:"#3B82F6", fontSize:11, fontWeight:700 }}>Study Guide</span>
-                              <span style={{ color:"#1A2840", fontSize:10 }}>{SLIDES[step.topic].length} slides</span>
+                            <button onClick={() => openGuide(step.topic, active.color)} style={{ display:"flex", alignItems:"center", gap:7, background:"#080C14", border:"1px solid #1A3060", borderRadius:6, padding:"8px 14px", cursor:"pointer", fontFamily:"inherit", transition:"all 0.15s" }}
+                              onMouseEnter={e=>e.currentTarget.style.borderColor="#3B82F655"}
+                              onMouseLeave={e=>e.currentTarget.style.borderColor="#1A3060"}
+                            >
+                              <span style={{ fontSize:13 }}>📖</span>
+                              <span style={{ color:"#3B82F6", fontSize:12, fontWeight:700 }}>Study Guide</span>
+                              <span style={{ color:"#2A3F5A", fontSize:10, fontFamily:"inherit" }}>{SLIDES[step.topic].length} slides</span>
                             </button>
                           )}
                         </div>
@@ -541,18 +653,23 @@ export default function App() {
 
           {activeModule < modules.length-1 && (
             <button onClick={() => { setActiveModule(activeModule+1); window.scrollTo(0,0); }}
-              onMouseEnter={e=>e.currentTarget.style.background="#0F1628"}
-              onMouseLeave={e=>e.currentTarget.style.background="#0C1220"}
-              style={{ marginTop:20, width:"100%", background:"#0C1220", border:`1px solid ${modules[activeModule+1].color}25`, borderRadius:7, padding:"13px 16px", cursor:"pointer", textAlign:"left", fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"space-between", transition:"background 0.12s" }}>
+              onMouseEnter={e=>{e.currentTarget.style.background="#0F1628";e.currentTarget.style.transform="translateY(-1px)";}}
+              onMouseLeave={e=>{e.currentTarget.style.background="#0C1220";e.currentTarget.style.transform="translateY(0)";}}
+              style={{ marginTop:24, width:"100%", background:"#0C1220", border:`1px solid ${modules[activeModule+1].color}25`, borderRadius:10, padding:"16px 18px", cursor:"pointer", textAlign:"left", fontFamily:"inherit", display:"flex", alignItems:"center", justifyContent:"space-between", transition:"all 0.2s cubic-bezier(0.4,0,0.2,1)" }}>
               <div>
-                <div style={{ color:"#1A2840", fontSize:9, letterSpacing:1.5, marginBottom:2 }}>UP NEXT</div>
-                <div style={{ color:modules[activeModule+1].color, fontSize:13, fontWeight:700 }}>{modules[activeModule+1].emoji} {modules[activeModule+1].title}</div>
+                <div style={{ color:"#3A5070", fontSize:10, letterSpacing:2, marginBottom:3, fontFamily:"inherit" }}>UP NEXT</div>
+                <div style={{ color:modules[activeModule+1].color, fontSize:15, fontWeight:700 }}>{modules[activeModule+1].emoji} {modules[activeModule+1].title}</div>
               </div>
-              <span style={{ color:"#1A2840", fontSize:18 }}>→</span>
+              <span style={{ color:"#2A3F5A", fontSize:20, transition:"transform 0.2s" }}>→</span>
             </button>
           )}
         </div>
       )}
+
+      {/* Footer */}
+      <div style={{ borderTop:"1px solid #0D1828", padding:"24px 20px", textAlign:"center" }}>
+        <div style={{ color:"#1A2840", fontSize:10, fontFamily:"inherit", letterSpacing:2 }}>NLFRC 2026 · BUILT FOR COMPETITION</div>
+      </div>
     </div>
   );
 }
