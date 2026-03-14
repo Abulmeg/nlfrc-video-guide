@@ -65,8 +65,8 @@ const SVGs = {
     <svg viewBox="0 0 260 180" width="100%" style={{maxWidth:320,display:"block",margin:"12px auto"}}>
       <rect width="260" height="180" fill="#0D1625" rx="8"/>
       <text x="130" y="16" textAnchor="middle" fill="#F59E0B" fontSize="11" fontFamily="monospace">H-Bridge</text>
-      <line x1="130" y1="22" x2="130" y2="45" stroke="#F59E0B" strokeWidth="2"/>
-      <text x="130" y="42" textAnchor="middle" fill="#FCD34D" fontSize="10" fontFamily="monospace">+12V</text>
+      <line x1="130" y1="22" x2="130" y2="50" stroke="#F59E0B" strokeWidth="2"/>
+      <text x="150" y="35" fill="#FCD34D" fontSize="10" fontFamily="monospace">+12V</text>
       <line x1="40" y1="50" x2="220" y2="50" stroke="#374151" strokeWidth="1.5"/>
       <rect x="20" y="60" width="36" height="24" fill="#1A3050" stroke="#3B82F6" strokeWidth="1.5" rx="3"/>
       <text x="38" y="76" textAnchor="middle" fill="#60A5FA" fontSize="10" fontFamily="monospace">S1</text>
@@ -109,7 +109,7 @@ const SVGs = {
       <line x1="98" y1="100" x2="310" y2="100" stroke="#6B7799" strokeWidth="1.5"/>
       <line x1="98" y1="70" x2="98" y2="100" stroke="#6B7799" strokeWidth="1.5"/>
       <text x="200" y="115" textAnchor="middle" fill="#4A6080" fontSize="9" fontFamily="monospace">feedback (sensor reading)</text>
-      <text x="310" y="57" textAnchor="middle" fill="#E0EAF8" fontSize="9" fontFamily="monospace">out</text>
+      <text x="325" y="55" textAnchor="middle" fill="#E0EAF8" fontSize="9" fontFamily="monospace">out</text>
       <defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="3" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#6B7799"/></marker></defs>
     </svg>
   ),
@@ -127,8 +127,8 @@ const SVGs = {
       <rect x="10" y="80" width="80" height="40" fill="#1A2840" stroke="#3B82F6" strokeWidth="1.5" rx="4"/>
       <text x="50" y="98" textAnchor="middle" fill="#60A5FA" fontSize="9" fontFamily="monospace">Photodiode</text>
       <text x="50" y="112" textAnchor="middle" fill="#4A6080" fontSize="9" fontFamily="monospace">detector</text>
-      <text x="180" y="105" textAnchor="middle" fill="#10B981" fontSize="10" fontFamily="monospace">White → HIGH (0V)</text>
-      <text x="180" y="120" textAnchor="middle" fill="#EF4444" fontSize="10" fontFamily="monospace">Black → LOW (5V)</text>
+      <text x="200" y="100" textAnchor="middle" fill="#10B981" fontSize="10" fontFamily="monospace">White → reflects → LOW</text>
+      <text x="200" y="118" textAnchor="middle" fill="#EF4444" fontSize="10" fontFamily="monospace">Black → absorbs → HIGH</text>
     </svg>
   ),
   groundPlane: (
@@ -174,16 +174,57 @@ const SVGs = {
       <rect x="30" y="25" width="80" height="60" fill="#1A2840" stroke="#F59E0B" strokeWidth="1.5" rx="4"/>
       <rect x="55" y="30" width="30" height="50" rx="15" fill="#2A1A00" stroke="#F59E0B" strokeWidth="1.5"/>
       <line x1="70" y1="25" x2="70" y2="10" stroke="#10B981" strokeWidth="2"/>
-      <line x1="58" y1="87" x2="58" y2="100" stroke="#6B7799" strokeWidth="2"/>
-      <text x="83" y="97" fill="#EF4444" fontSize="9" fontFamily="monospace">+/- matters!</text>
+      <text x="78" y="14" fill="#10B981" fontSize="10" fontWeight="bold" fontFamily="monospace">+</text>
+      <line x1="70" y1="80" x2="70" y2="100" stroke="#6B7799" strokeWidth="2"/>
+      <text x="78" y="98" fill="#6B7799" fontSize="10" fontWeight="bold" fontFamily="monospace">−</text>
+      <text x="100" y="97" fill="#EF4444" fontSize="9" fontFamily="monospace">polarity!</text>
       <text x="70" y="113" textAnchor="middle" fill="#78350F" fontSize="9" fontFamily="monospace">10µF–10,000µF</text>
       <text x="200" y="18" textAnchor="middle" fill="#4A6080" fontSize="10" fontFamily="monospace">Ceramic</text>
       <rect x="160" y="25" width="80" height="60" fill="#1A2840" stroke="#3B82F6" strokeWidth="1.5" rx="4"/>
       <rect x="185" y="40" width="30" height="20" rx="4" fill="#1E3A5F" stroke="#3B82F6" strokeWidth="1"/>
-      <line x1="190" y1="60" x2="190" y2="85" stroke="#6B7799" strokeWidth="2"/>
-      <line x1="210" y1="60" x2="210" y2="85" stroke="#6B7799" strokeWidth="2"/>
+      <line x1="200" y1="60" x2="200" y2="85" stroke="#6B7799" strokeWidth="2"/>
       <text x="200" y="113" textAnchor="middle" fill="#1E40AF" fontSize="9" fontFamily="monospace">100pF–1µF</text>
       <text x="200" y="96" textAnchor="middle" fill="#34D399" fontSize="8" fontFamily="monospace">no polarity</text>
+    </svg>
+  ),
+  seriesParallel: (
+    <svg viewBox="0 0 320 130" width="100%" style={{maxWidth:400,display:"block",margin:"12px auto"}}>
+      <rect width="320" height="130" fill="#0D1625" rx="8"/>
+      {/* Series */}
+      <text x="80" y="16" textAnchor="middle" fill="#F59E0B" fontSize="10" fontWeight="bold" fontFamily="monospace">SERIES</text>
+      <line x1="10" y1="40" x2="30" y2="40" stroke="#F59E0B" strokeWidth="2"/>
+      <rect x="30" y="32" width="30" height="16" fill="none" stroke="#F59E0B" strokeWidth="1.5" rx="2"/>
+      <text x="45" y="43" textAnchor="middle" fill="#FCD34D" fontSize="8" fontFamily="monospace">R1</text>
+      <line x1="60" y1="40" x2="70" y2="40" stroke="#F59E0B" strokeWidth="2"/>
+      <rect x="70" y="32" width="30" height="16" fill="none" stroke="#F59E0B" strokeWidth="1.5" rx="2"/>
+      <text x="85" y="43" textAnchor="middle" fill="#FCD34D" fontSize="8" fontFamily="monospace">R2</text>
+      <line x1="100" y1="40" x2="110" y2="40" stroke="#F59E0B" strokeWidth="2"/>
+      <rect x="110" y="32" width="30" height="16" fill="none" stroke="#F59E0B" strokeWidth="1.5" rx="2"/>
+      <text x="125" y="43" textAnchor="middle" fill="#FCD34D" fontSize="8" fontFamily="monospace">R3</text>
+      <line x1="140" y1="40" x2="155" y2="40" stroke="#F59E0B" strokeWidth="2"/>
+      <text x="80" y="62" textAnchor="middle" fill="#4A6080" fontSize="8" fontFamily="monospace">Rtotal = R1 + R2 + R3</text>
+      {/* Parallel */}
+      <text x="240" y="16" textAnchor="middle" fill="#3B82F6" fontSize="10" fontWeight="bold" fontFamily="monospace">PARALLEL</text>
+      <line x1="180" y1="55" x2="200" y2="55" stroke="#3B82F6" strokeWidth="2"/>
+      <line x1="200" y1="30" x2="200" y2="80" stroke="#3B82F6" strokeWidth="1.5"/>
+      <line x1="200" y1="30" x2="210" y2="30" stroke="#3B82F6" strokeWidth="1.5"/>
+      <rect x="210" y="22" width="40" height="16" fill="none" stroke="#3B82F6" strokeWidth="1.5" rx="2"/>
+      <text x="230" y="33" textAnchor="middle" fill="#60A5FA" fontSize="8" fontFamily="monospace">R1</text>
+      <line x1="250" y1="30" x2="280" y2="30" stroke="#3B82F6" strokeWidth="1.5"/>
+      <line x1="200" y1="55" x2="210" y2="55" stroke="#3B82F6" strokeWidth="1.5"/>
+      <rect x="210" y="47" width="40" height="16" fill="none" stroke="#3B82F6" strokeWidth="1.5" rx="2"/>
+      <text x="230" y="58" textAnchor="middle" fill="#60A5FA" fontSize="8" fontFamily="monospace">R2</text>
+      <line x1="250" y1="55" x2="280" y2="55" stroke="#3B82F6" strokeWidth="1.5"/>
+      <line x1="200" y1="80" x2="210" y2="80" stroke="#3B82F6" strokeWidth="1.5"/>
+      <rect x="210" y="72" width="40" height="16" fill="none" stroke="#3B82F6" strokeWidth="1.5" rx="2"/>
+      <text x="230" y="83" textAnchor="middle" fill="#60A5FA" fontSize="8" fontFamily="monospace">R3</text>
+      <line x1="250" y1="80" x2="280" y2="80" stroke="#3B82F6" strokeWidth="1.5"/>
+      <line x1="280" y1="30" x2="280" y2="80" stroke="#3B82F6" strokeWidth="1.5"/>
+      <line x1="280" y1="55" x2="300" y2="55" stroke="#3B82F6" strokeWidth="2"/>
+      <text x="240" y="105" textAnchor="middle" fill="#4A6080" fontSize="8" fontFamily="monospace">1/Rt = 1/R1 + 1/R2 + 1/R3</text>
+      {/* Current flow arrows */}
+      <text x="80" y="76" textAnchor="middle" fill="#374151" fontSize="7" fontFamily="monospace">same I through all</text>
+      <text x="240" y="118" textAnchor="middle" fill="#374151" fontSize="7" fontFamily="monospace">same V across all</text>
     </svg>
   ),
 };
@@ -258,7 +299,7 @@ const SLIDES = {
     { heading:"What is a resistor?", body:"A resistor limits the flow of electrical current. Think of electricity like water in a pipe — a resistor is a narrower section that slows the flow.\n\nResistors protect components (like LEDs or microcontroller pins) from getting too much current. Without them, components burn out instantly.", visual: SVGs.resistorSymbol },
     { heading:"Ohm's Law — V = I × R", body:"V = Voltage (Volts)\nI = Current (Amperes)\nR = Resistance (Ohms, Ω)\n\nIf you have 5V and a 100Ω resistor:\nI = V ÷ R = 5 ÷ 100 = 0.05A = 50mA\n\nAlways calculate current before connecting anything to a pin.", visual: SVGs.ohmsLaw },
     { heading:"Reading the color code", body:"Each color band = a number. For 4-band resistors:\nBand 1 + Band 2 = first two digits\nBand 3 = multiplier (number of zeros)\nBand 4 = tolerance (gold = ±5%)\n\nExample: Brown-Black-Red-Gold\n= 1, 0, ×100, ±5% = 1000Ω = 1kΩ", visual: SVGs.colorCode },
-    { heading:"Series vs Parallel", body:"SERIES (chain): Total R = R1 + R2 + R3\nSame current flows through all. Voltage divides.\n\nPARALLEL (side by side): 1/Total = 1/R1 + 1/R2\nSame voltage across all. Current divides.\n\nIn your robot: use series for current limiting (LED), parallel appears in sensor pull-up configurations." },
+    { heading:"Series vs Parallel", body:"SERIES (chain): Total R = R1 + R2 + R3\nSame current flows through all. Voltage divides.\n\nPARALLEL (side by side): 1/Total = 1/R1 + 1/R2\nSame voltage across all. Current divides.\n\nIn your robot: use series for current limiting (LED), parallel appears in sensor pull-up configurations.", visual: SVGs.seriesParallel },
     { heading:"Key takeaways", body:"✓ Resistors limit current — they protect components\n✓ V = I × R — calculate before connecting\n✓ Color bands tell you the resistance value\n✓ Series = resistances add up\n✓ Parallel = total resistance goes DOWN\n✓ Every LED pin needs a calculated resistor" },
   ],
   capacitors: [
